@@ -14,5 +14,12 @@ asdf list-all krew
 asdf install krew 0.4.2
 asdf global krew 0.4.2
 krew version
-kubectl krew version
 `````
+
+>Important
+If you would like to use `kubectl krew` instead of `krew`, you need to make sure you have the following `PATH` added to your `.bash_profile` or `.zshrc`.  The reason is because kubectl plugins has to be searchable from `PATH`
+
+```
+PATH=$(dirname $(asdf which krew))/bin:$PATH
+```
+
