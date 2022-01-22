@@ -16,7 +16,7 @@ asdf global krew 0.4.2
 krew version
 `````
 
->IMPORTANT: 
+>**IMPORTANT:** 
 In order to execute krew plugins using `kubectl <plugin name>`, you need to make sure you have the following `PATH` added to your `.bash_profile` or `.zshrc`.  The reason is because kubectl plugins has to be searchable from `PATH`.
 
 ```
