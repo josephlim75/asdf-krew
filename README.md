@@ -17,7 +17,7 @@ krew version
 `````
 
 >Important
-If you would like to use `kubectl krew` instead of `krew`, you need to make sure you have the following `PATH` added to your `.bash_profile` or `.zshrc`.  The reason is because kubectl plugins has to be searchable from `PATH`
+In order to execute krew plugins using `kubectl <plugin name>`, you need to make sure you have the following `PATH` added to your `.bash_profile` or `.zshrc`.  The reason is because kubectl plugins has to be searchable from `PATH`.
 
 ```
 PATH=$(dirname $(asdf which krew))/bin:$PATH
