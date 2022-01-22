@@ -1,0 +1,70 @@
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+
+install_krew() {
+  local install_type=$1
+  local version=$2
+  local install_path=$3
+  local arch=
+  local platform="$(uname | tr '[:upper:]' '[:lower:]')_$(get_cpu)"
+  local bin_install_path="$install_path/bin"
+  local download_url=$(get_download_url $version $platform)
+  local bin_path="${bin_install_path}/kubectl-krew"
+
+  mkdir -p "${bin_install_path}" "${install_path}/tmp"
+
+  echo "Downloading krew from ${download_url}"
+  curl -sSL "$download_url" -o "${install_path}/krew.tar.gz"
+  tar xzf "${install_path}/krew.tar.gz" -C "${install_path}/tmp"
+  mv ${install_path}/tmp/krew-${platform}* ${install_path}/bin/krew
+  ln -sf ${install_path}/bin/krew ${install_path}/bin/kubectl-krew
+  chmod +x "${install_path}/bin"
+  rm -rf "${install_path}/krew.tar.gz" "${install_path}/tmp"
+  echo "Krew version ${version} has been successfully installed."
+}
+
+get_cpu() {
+  local machine_hardware_name
+  machine_hardware_name=${ASDF_ARCH:-"$(uname -m)"}
+
+  case "$machine_hardware_name" in
+    'x86_64') local cpu_type="amd64";;
+    'powerpc64le' | 'ppc64le') local cpu_type="ppc64le";;    
+    'aarch64') local cpu_type="arm64";;
+    'armv7l') local cpu_type="arm";;
+    *) local cpu_type="$machine_hardware_name";;
+  esac
+
+  echo "$cpu_type"
+}
+
+get_download_url() {
+  local version="$1"
+  local platform="$2"
+  local download_url=""
+
+  local asset_url=$(curl -sSL https://api.github.com/repos/kubernetes-sigs/krew/releases| grep  -oE "browser_download_url\":.*${version}.*gz" | sed 's/browser_download_url\": \"//;s/\",//')
+
+  for url in ${asset_url}; do
+    case $url in
+      *krew-${platform}*.tar.gz)
+        download_url=$url
+        break
+        ;;
+      *krew.tar.gz)
+        download_url=$url
+        break
+        ;;
+    esac
+  done
+  if [ -z "$download_url" ]; then
+    echo "This version ${version} is no longer supported due to inconsistency file archive type"
+    exit 1
+  else
+    echo $download_url 
+  fi
+}
+
+install_krew $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
